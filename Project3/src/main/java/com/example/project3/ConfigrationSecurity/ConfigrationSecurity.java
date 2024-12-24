@@ -27,37 +27,38 @@ private final MyUserDetailsService myUserDetailsService;
     }
 
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    // @Bean
+    // public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        http.csrf().disable() // Disable CSRF for testing purposes
-                .authorizeHttpRequests()
-                .anyRequest().permitAll() // Allow all requests
+    //     http.csrf().disable() // Disable CSRF for testing purposes
+    //             .authorizeHttpRequests()
+    //             .anyRequest().permitAll() // Allow all requests
+    //             .and()
+    //             .logout().disable() // Disable logout endpoint
+    //             .httpBasic().disable(); // Disable HTTP Basic Authentication
+
+    //     return http.build();
+    // }
+
+
+ @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+
+        httpSecurity.csrf().disable()
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 .and()
-                .logout().disable() // Disable logout endpoint
-                .httpBasic().disable(); // Disable HTTP Basic Authentication
+                .authenticationProvider(daoAuthenticationProvider())
+                .authorizeHttpRequests()
+                .requestMatchers("/api/v1/customer/register").permitAll()
+                .requestMatchers("/api/v1/employee/register").permitAll()
+                .anyRequest().authenticated()
+                .and().logout().logoutUrl("/api/v1/logout")
+                .deleteCookies("JSESSIONID").invalidateHttpSession(true)
+                .and()
+                .httpBasic();
 
-        return http.build();
+        return httpSecurity.build();
     }
-
-//    @Bean
-//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//        http.csrf().disable()
-//                .sessionManagement()
-//                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-//                .and()
-//                .authenticationProvider(daoAuthenticationProvider())
-//                .authorizeHttpRequests()
-//                .requestMatchers("/api/v1/").permitAll()
-//                .anyRequest().authenticated()
-//                .and()
-//                .logout().logoutUrl("/api/v1/user/logout")
-//                .deleteCookies("JSESSIONID")
-//                .invalidateHttpSession(true)
-//                .and()
-//                .httpBasic();
-//        return http.build();
-
-}
 
 
